@@ -1,46 +1,74 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
-<title>Pie Help Center Sitemap</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  h1 { font-size: 1.5em; }
-  ul { list-style: none; padding: 0; }
-  li { margin-bottom: 8px; }
-  a { color: #0066cc; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-</style>
+  <meta charset="UTF-8">
+  <title>Pie Help Center Sitemap</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { font-size: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 8px; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
 </head>
 <body>
-<h1>Pie Help Center Sitemap</h1>
-<p>Click any link below to view the corresponding help article.</p>
-<ul id="urlList"></ul>
+  <h1>Pie Help Center Sitemap</h1>
+  <ul id="sitemap"></ul>
 
-<script>
-  async function loadSitemap() {
-    try {
-      const res = await fetch('./help-center-sitemap.xml');
-      const text = await res.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(text, "application/xml");
-      const urls = xmlDoc.getElementsByTagName('loc');
-      const list = document.getElementById('urlList');
-      for (let i = 0; i < urls.length; i++) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = urls[i].textContent;
-        a.textContent = urls[i].textContent;
-        a.target = "_blank";
-        li.appendChild(a);
-        list.appendChild(li);
+  <script>
+    async function loadSitemap() {
+      try {
+        // Fetch sitemap with cache-busting timestamp
+        const response = await fetch('help-center-sitemap.xml?v=' + Date.now());
+        const text = await response.text();
+
+        // Parse XML
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'application/xml');
+
+        const urlElements = xml.getElementsByTagName('url');
+        let urls = [];
+
+        // Collect URLs + lastmod date
+        for (let i = 0; i < urlElements.length; i++) {
+          const loc = urlElements[i].getElementsByTagName('loc')[0]?.textContent || '';
+          const lastmod = urlElements[i].getElementsByTagName('lastmod')[0]?.textContent || '';
+          urls.push({ loc, lastmod });
+        }
+
+        // Sort by lastmod (newest first)
+        urls.sort((a, b) => new Date(b.lastmod) - new Date(a.lastmod));
+
+        // Render list
+        const list = document.getElementById('sitemap');
+        urls.forEach(item => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = item.loc;
+          a.textContent = item.loc;
+          a.target = "_blank";
+          li.appendChild(a);
+
+          // Show lastmod if available
+          if (item.lastmod) {
+            const dateSpan = document.createElement('span');
+            dateSpan.style.color = '#666';
+            dateSpan.style.fontSize = '0.9em';
+            dateSpan.style.marginLeft = '8px';
+            dateSpan.textContent = `(Updated: ${new Date(item.lastmod).toLocaleDateString()})`;
+            li.appendChild(dateSpan);
+          }
+
+          list.appendChild(li);
+        });
+
+      } catch (err) {
+        console.error('Error loading sitemap:', err);
       }
-    } catch (err) {
-      document.getElementById('urlList').innerHTML = "<li>Error loading sitemap.</li>";
-      console.error(err);
     }
-  }
-  loadSitemap();
-</script>
+
+    loadSitemap();
+  </script>
 </body>
 </html>
