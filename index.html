@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pie Help Center Sitemap</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h1 { font-size: 1.5em; }
+  ul { list-style: none; padding: 0; }
+  li { margin-bottom: 8px; }
+  a { color: #0066cc; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<h1>Pie Help Center Sitemap</h1>
+<p>Click any link below to view the corresponding help article.</p>
+<ul id="urlList"></ul>
+
+<script>
+  async function loadSitemap() {
+    try {
+      const res = await fetch('./help-center-sitemap.xml');
+      const text = await res.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(text, "application/xml");
+      const urls = xmlDoc.getElementsByTagName('loc');
+      const list = document.getElementById('urlList');
+      for (let i = 0; i < urls.length; i++) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = urls[i].textContent;
+        a.textContent = urls[i].textContent;
+        a.target = "_blank";
+        li.appendChild(a);
+        list.appendChild(li);
+      }
+    } catch (err) {
+      document.getElementById('urlList').innerHTML = "<li>Error loading sitemap.</li>";
+      console.error(err);
+    }
+  }
+  loadSitemap();
+</script>
+</body>
+</html>
