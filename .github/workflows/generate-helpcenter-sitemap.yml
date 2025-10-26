@@ -35,3 +35,22 @@ jobs:
           else
             echo "No changes to commit."
           fi
+
+      - name: Send email notification
+        if: success()  # only send if the workflow succeeded
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "✅ Pie Help Center Sitemap Updated"
+          to: "you@example.com"
+          from: "Pie Sitemap Bot <you@example.com>"
+          body: |
+            The sitemap update workflow completed successfully.
+
+            - Repository: ${{ github.repository }}
+            - Run ID: ${{ github.run_id }}
+            - Triggered by: ${{ github.actor }}
+            - View details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
