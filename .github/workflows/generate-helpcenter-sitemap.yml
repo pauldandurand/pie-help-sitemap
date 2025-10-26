@@ -45,8 +45,8 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "✅ Pie Help Center Sitemap Updated"
-          to: "you@example.com"
-          from: "Pie Sitemap Bot <you@example.com>"
+          to: "paul.dandurand@piematrix.com"
+          from: "Pie Sitemap Bot <paul.dandurand@piematrix.com>"
           body: |
             The sitemap update workflow completed successfully.
 
